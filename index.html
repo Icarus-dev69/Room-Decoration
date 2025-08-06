@@ -92,25 +92,7 @@
           const newFurniture = document.createElement("a-entity");
           newFurniture.setAttribute("gltf-model", modelUrl);
           newFurniture.setAttribute("scale", "0.1 0.1 0.1");
-          //newFurniture.setAttribute("position", "0 0 -4");
-
-          const camera = document.querySelector("[camera]");
-
-          // Get world position 1m in front of the camera
-          const cameraObj = camera.object3D;
-          const cameraWorldPos = new THREE.Vector3();
-          cameraObj.getWorldPosition(cameraWorldPos);
-
-          // Forward direction
-          const cameraDir = new THREE.Vector3();
-          cameraObj.getWorldDirection(cameraDir);
-
-          // Offset forward
-          const offset = cameraDir.multiplyScalar(1); // 1 meter forward
-          const spawnPos = cameraWorldPos.add(offset);
-
-          newFurniture.setAttribute("position", `${spawnPos.x} ${spawnPos.y} ${spawnPos.z}`);
-          
+          newFurniture.setAttribute("position", "0 0 -4");
           newFurniture.setAttribute("auto-bounds", "");
           newFurniture.classList.add("furniture-item");
 
