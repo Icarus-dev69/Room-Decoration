@@ -1,0 +1,198 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@master/dist/aframe-master.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <style>
+      .model-thumb {
+        height: 80px;
+        margin: 5px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        border-radius: 8px;
+      }
+      .model-thumb.selected {
+        border-color: #0077ff;
+      }
+    </style>
+  </head>
+
+  <body style="margin: 0; overflow: hidden">
+    <!-- <div style="position: absolute; top: 10px; left: 10px; z-index: 9999;">
+      <button id="moveMode">Move</button>
+      <button id="rotateXMode">Rotate X</button>
+      <button id="rotateYMode">Rotate Y</button>
+    </div> -->
+    <button id="toggle-mode" style="position: absolute; top: 10px; left: 10px; z-index: 9999;">
+  Mode: MOVE
+</button>
+    <a-scene
+      embedded
+      arjs="sourceType: webcam; debugUIEnabled: false;"
+      renderer="logarithmicDepthBuffer: true;"
+      vr-mode-ui="enabled: false"
+    >
+      <!-- Camera -->
+      <a-entity id="camera" camera position="0 1.6 0"></a-entity>
+
+      <!-- Add this inside your <a-scene> -->
+      <a-entity id="raycaster" raycaster="objects: #ground"></a-entity>
+
+
+      <!-- Invisible ground to receive touch interactions -->
+      <a-plane
+        id="ground"
+        rotation="-90 0 0"
+        width="10"
+        height="10"
+        visible="false"
+      ></a-plane>
+
+      <!-- Your model -->
+
+    </a-scene>
+    <div id="model-selector" style="position: absolute; bottom: 10px; left: 0; right: 0; display: flex; overflow-x: auto; z-index: 9999;">
+      <img src="assets/thumbnails/test1.png" data-model="assets/models/test.glb" class="model-thumb" />
+      <img src="assets/thumbnails/test2.png" data-model="assets/models/test2.glb" class="model-thumb" />
+      <!-- Add more models as needed -->
+    </div>
+    
+    
+    
+
+    <script>
+      const toggleBtn = document.getElementById("toggle-mode");
+
+      // Mode cycling
+      const modes = ["move","scale", "rotateX", "rotateY"];
+      let currentModeIndex = 0;
+      let mode = modes[currentModeIndex];
+      toggleBtn.innerText = `Mode: ${mode.replace("-", " ").toUpperCase()}`;
+
+      toggleBtn.addEventListener("click", () => {
+        currentModeIndex = (currentModeIndex + 1) % modes.length;
+        mode = modes[currentModeIndex];
+        toggleBtn.innerText = `Mode: ${mode.replace("-", " ").toUpperCase()}`;
+      });
+
+      let activeFurniture = null;
+      let scene = document.querySelector("a-scene");
+
+      // Touch interaction
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let initialPos = null;
+      let initialRot = null;
+
+      let initialDistance = null;
+      let initialScale = null;
+
+      // Model selection
+      document.querySelectorAll(".model-thumb").forEach((img) => {
+        img.addEventListener("click", () => {
+          document.querySelectorAll(".model-thumb").forEach((i) => i.classList.remove("selected"));
+          img.classList.add("selected");
+
+          const modelUrl = img.getAttribute("data-model");
+          const newFurniture = document.createElement("a-entity");
+          newFurniture.setAttribute("gltf-model", modelUrl);
+          newFurniture.setAttribute("scale", "0.1 0.1 0.1");
+          newFurniture.setAttribute("position", "0 0 -4");
+          newFurniture.setAttribute("auto-bounds", "");
+          newFurniture.classList.add("furniture-item");
+
+          scene.appendChild(newFurniture);
+          setActiveFurniture(newFurniture);
+        });
+      });
+
+      // Tap to select placed model
+      scene.addEventListener("click", (e) => {
+        const target = e.target;
+        if (target.classList.contains("furniture-item")) {
+          setActiveFurniture(target);
+        }
+      });
+
+      function setActiveFurniture(el) {
+        activeFurniture = el;
+      }
+
+      // Touch start
+      scene.addEventListener("touchstart", (e) => {
+        if (!activeFurniture) return;
+
+        if (e.touches.length === 1) {
+          const touch = e.touches[0];
+          touchStartX = touch.clientX;
+          touchStartY = touch.clientY;
+          initialPos = Object.assign({}, activeFurniture.getAttribute("position"));
+          initialRot = Object.assign({}, activeFurniture.getAttribute("rotation"));
+        }
+
+        if (e.touches.length === 2 && mode === "scale") {
+          const dx = e.touches[0].clientX - e.touches[1].clientX;
+          const dy = e.touches[0].clientY - e.touches[1].clientY;
+          initialDistance = Math.sqrt(dx * dx + dy * dy);
+          initialScale = Object.assign({}, activeFurniture.getAttribute("scale"));
+        }
+      });
+
+      // Touch move
+      scene.addEventListener("touchmove", (e) => {
+        if (!activeFurniture) return;
+        e.preventDefault();
+
+        if (e.touches.length === 1) {
+          const touch = e.touches[0];
+          const dx = touch.clientX - touchStartX;
+          const dy = touch.clientY - touchStartY;
+
+          if (mode === "move") {
+          const scaleFactor = 0.01;
+          const newX = initialPos.x + dx * scaleFactor;
+          const newY = initialPos.y + dy * -scaleFactor; // negative to match screen direction
+          activeFurniture.setAttribute("position", { x: newX, y: newY, z: initialPos.z });
+        } else if (mode === "rotateY") {
+            const newRotX = initialRot.x + dy * 0.5;
+            activeFurniture.setAttribute("rotation", {
+              x: newRotX,
+              y: initialRot.y,
+              z: initialRot.z,
+            });
+          } else if (mode === "rotateX") {
+            const newRotY = initialRot.y + dx * 0.5;
+            activeFurniture.setAttribute("rotation", {
+              x: initialRot.x,
+              y: newRotY,
+              z: initialRot.z,
+            });
+          }
+        }
+
+        if (e.touches.length === 2 && mode === "scale" && initialDistance) {
+          const dx = e.touches[0].clientX - e.touches[1].clientX;
+          const dy = e.touches[0].clientY - e.touches[1].clientY;
+          const currentDistance = Math.sqrt(dx * dx + dy * dy);
+          const scaleFactor = currentDistance / initialDistance;
+
+          const newScale = {
+            x: initialScale.x * scaleFactor,
+            y: initialScale.y * scaleFactor,
+            z: initialScale.z * scaleFactor,
+          };
+
+          const minScale = 0.001;
+          const maxScale = 5;
+
+          newScale.x = Math.min(maxScale, Math.max(minScale, newScale.x));
+          newScale.y = Math.min(maxScale, Math.max(minScale, newScale.y));
+          newScale.z = Math.min(maxScale, Math.max(minScale, newScale.z));
+
+          activeFurniture.setAttribute("scale", newScale);
+        }
+      });
+    </script>
+
+  </body>
+</html>
