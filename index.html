@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@master/dist/aframe-master.min.js"></script>
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
       .model-thumb {
@@ -21,12 +21,31 @@
     <button id="toggle-mode" style="position: absolute; top: 10px; left: 10px; z-index: 9999;">
     Mode: MOVE
 </button>
+<button id="place-btn" style="
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  z-index: 10;
+  display: none;
+">Place Object</button>
     <a-scene
       embedded
       arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
       renderer="logarithmicDepthBuffer: true;"
       vr-mode-ui="enabled: false"
     >
+      <!-- <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
+      <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
+      <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
+      <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane> -->
+      <!-- <a-sky color="#ECECEC"></a-sky> -->
       <!-- Camera -->
       <a-entity id="camera" camera position="0 1.6 0"></a-entity>
 
@@ -44,6 +63,11 @@
       ></a-plane>
 
       <!-- Your model -->
+       <!-- <a-assets>
+          <a-asset-item id="testmodel" src="./assets/models/test.glb"></a-asset-item>
+        </a-assets> -->
+
+        <!-- <a-entity gltf-model="#testmodel" scale="0.05 0.05 0.05"></a-entity> -->
 
     </a-scene>
     <div id="model-selector" style="position: absolute; bottom: 10px; left: 0; right: 0; display: flex; overflow-x: auto; z-index: 9999;">
@@ -72,6 +96,8 @@
 
       let activeFurniture = null;
       let scene = document.querySelector("a-scene");
+      const cameraEl = document.querySelector("[camera]");
+      const placeBtn = document.getElementById("place-btn");
 
       // Touch interaction
       let touchStartX = 0;
@@ -81,6 +107,7 @@
 
       let initialDistance = null;
       let initialScale = null;
+      let newFurniture = null;
 
       // Model selection
       document.querySelectorAll(".model-thumb").forEach((img) => {
@@ -89,16 +116,40 @@
           img.classList.add("selected");
 
           const modelUrl = img.getAttribute("data-model");
-          const newFurniture = document.createElement("a-entity");
+          newFurniture = document.createElement("a-entity");
           newFurniture.setAttribute("gltf-model", modelUrl);
           newFurniture.setAttribute("scale", "0.1 0.1 0.1");
           newFurniture.setAttribute("position", "0 0 -4");
           newFurniture.setAttribute("auto-bounds", "");
           newFurniture.classList.add("furniture-item");
 
-          scene.appendChild(newFurniture);
+          // scene.appendChild(newFurniture);
+          cameraEl.appendChild(newFurniture); // attach to camera so it follows
+          placeBtn.style.display = "block"; // show the "Place" button
           setActiveFurniture(newFurniture);
         });
+      });
+      placeBtn.addEventListener("click", () => {
+        if (!newFurniture || !cameraEl.contains(newFurniture)) return;
+
+        // Get current world position of the object
+        const worldPos = new THREE.Vector3();
+        newFurniture.object3D.getWorldPosition(worldPos);
+
+        // Detach from camera
+        cameraEl.removeChild(newFurniture);
+        scene.appendChild(newFurniture);
+
+        // Reposition in world coordinates
+        newFurniture.setAttribute("position", {
+          x: worldPos.x,
+          y: worldPos.y,
+          z: worldPos.z
+        });
+
+        setActiveFurniture(newFurniture); // continue move/rotate/scale
+        newFurniture = null;
+        placeBtn.style.display = "none";
       });
 
       // Tap to select placed model
