@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@master/dist/aframe-master.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
       .model-thumb {
@@ -18,24 +18,18 @@
   </head>
 
   <body style="margin: 0; overflow: hidden">
-    <button id="toggle-mode" style="position: absolute; top: 10px; left: 10px; z-index: 9999;">
-    Mode: MOVE
-</button>
-<button id="place-btn" style="
-  position: absolute;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 12px 20px;
-  background-color: #2196F3;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  z-index: 10;
-  display: none;
-">Place Object</button>
-<button id="take-picture-btn" style="
+    <!-- <div style="position: absolute; top: 10px; left: 10px; z-index: 9999;">
+      <button id="moveMode">Move</button>
+      <button id="rotateXMode">Rotate X</button>
+      <button id="rotateYMode">Rotate Y</button>
+    </div> -->
+    <select id="mode-selector" style="position: absolute; top: 10px; left: 10px; z-index: 9999; font-size:16px; padding:4px;">
+      <option value="move">Move</option>
+      <option value="scale">Scale</option>
+      <option value="rotateX">Rotate X</option>
+      <option value="rotateY">Rotate Y</option>
+    </select>
+    <button id="take-picture-btn" style="
   position: absolute;
   bottom: 20px;
   left: 50%;
@@ -46,39 +40,30 @@
   border: none;
   border-radius: 8px;
   font-size: 16px;
-  z-index: 10;
+  z-index: 9999;
 ">Take Picture</button>
 
-<div id="countdown-overlay" style="
+<div id="countdown-text" style="
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 48px;
-  color: white;
+  font-size: 32px;
   font-weight: bold;
-  text-align: center;
-  z-index: 20;
+  color: red;
+  z-index: 9999;
   display: none;
-  text-shadow: 2px 2px 8px black;
-">
-  Please stay still<br><span id="countdown-number">3</span>
-</div>
+  text-align: center;
+">Please stay still</div>
     <a-scene
       embedded
-      arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
+      arjs="sourceType: webcam; debugUIEnabled: false;"
       renderer="logarithmicDepthBuffer: true;"
       vr-mode-ui="enabled: false"
     >
-      <!-- <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
-      <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
-      <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
-      <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane> -->
-      <!-- <a-sky color="#ECECEC"></a-sky> -->
       <!-- Camera -->
       <a-entity id="camera" camera position="0 1.6 0"></a-entity>
 
-      <!-- Add this inside your <a-scene> -->
       <a-entity id="raycaster" raycaster="objects: #ground"></a-entity>
 
 
@@ -91,12 +76,7 @@
         visible="false"
       ></a-plane>
 
-      <!-- Your model -->
-       <!-- <a-assets>
-          <a-asset-item id="testmodel" src="./assets/models/test.glb"></a-asset-item>
-        </a-assets> -->
 
-        <!-- <a-entity gltf-model="#testmodel" scale="0.05 0.05 0.05"></a-entity> -->
 
     </a-scene>
     <div id="model-selector" style="position: absolute; bottom: 10px; left: 0; right: 0; display: flex; overflow-x: auto; z-index: 9999;">
@@ -109,24 +89,16 @@
     
 
     <script>
-      const toggleBtn = document.getElementById("toggle-mode");
+      const modeSelector = document.getElementById("mode-selector");
+      let mode = modeSelector.value; // default
 
-      // Mode cycling
-      const modes = ["move","scale", "rotateX", "rotateY"];
-      let currentModeIndex = 0;
-      let mode = modes[currentModeIndex];
-      toggleBtn.innerText = `Mode: ${mode.replace("-", " ").toUpperCase()}`;
-
-      toggleBtn.addEventListener("click", () => {
-        currentModeIndex = (currentModeIndex + 1) % modes.length;
-        mode = modes[currentModeIndex];
-        toggleBtn.innerText = `Mode: ${mode.replace("-", " ").toUpperCase()}`;
+      modeSelector.addEventListener("change", () => {
+        mode = modeSelector.value;
+        console.log("Mode changed to:", mode);
       });
 
       let activeFurniture = null;
       let scene = document.querySelector("a-scene");
-      const cameraEl = document.querySelector("[camera]");
-      const placeBtn = document.getElementById("place-btn");
 
       // Touch interaction
       let touchStartX = 0;
@@ -136,7 +108,6 @@
 
       let initialDistance = null;
       let initialScale = null;
-      let newFurniture = null;
 
       // Model selection
       document.querySelectorAll(".model-thumb").forEach((img) => {
@@ -145,45 +116,16 @@
           img.classList.add("selected");
 
           const modelUrl = img.getAttribute("data-model");
-          newFurniture = document.createElement("a-entity");
+          const newFurniture = document.createElement("a-entity");
           newFurniture.setAttribute("gltf-model", modelUrl);
           newFurniture.setAttribute("scale", "0.1 0.1 0.1");
-          // newFurniture.setAttribute("position", "0 0 -4");
+          newFurniture.setAttribute("position", "0 0 -4");
           newFurniture.setAttribute("auto-bounds", "");
           newFurniture.classList.add("furniture-item");
 
           scene.appendChild(newFurniture);
-          // cameraEl.appendChild(newFurniture); // attach to camera so it follows
-          // placeBtn.style.display = "block"; // show the "Place" button
           setActiveFurniture(newFurniture);
         });
-      });
-      placeBtn.addEventListener("click", () => {
-        if (!newFurniture || !cameraEl.contains(newFurniture)) return;
-
-        // Step 1: Get world position before detaching
-        const worldPos = new THREE.Vector3();
-        newFurniture.object3D.getWorldPosition(worldPos);
-
-        console.log(newFurniture.object3D)
-
-        // Step 2: Detach and reattach to scene
-        cameraEl.removeChild(newFurniture);
-        scene.appendChild(newFurniture);
-
-        // Step 3: Set position in world space
-        newFurniture.setAttribute("position", {
-          x: worldPos.x,
-          y: worldPos.y,
-          z: worldPos.z
-        });
-
-        // Step 4: Optional - reset rotation if needed
-        // newFurniture.setAttribute("rotation", "0 0 0");
-
-        setActiveFurniture(newFurniture);
-        newFurniture = null;
-        placeBtn.style.display = "none";
       });
 
       // Tap to select placed model
@@ -274,35 +216,31 @@
       });
 
       const takePictureBtn = document.getElementById("take-picture-btn");
-      const countdownOverlay = document.getElementById("countdown-overlay");
-      const countdownNumber = document.getElementById("countdown-number");
+const countdownText = document.getElementById("countdown-text");
 
-      takePictureBtn.addEventListener("click", () => {
-        countdownOverlay.style.display = "block";
-        let counter = 3;
-        countdownNumber.innerText = counter;
+takePictureBtn.addEventListener("click", () => {
+  let countdown = 3;
+  countdownText.style.display = "block";
+  countdownText.innerText = `Please stay still\n${countdown}`;
 
-        const countdownInterval = setInterval(() => {
-          counter--;
-          if (counter > 0) {
-            countdownNumber.innerText = counter;
-          } else {
-            clearInterval(countdownInterval);
-            countdownOverlay.style.display = "none";
+  const interval = setInterval(() => {
+    countdown--;
+    if (countdown > 0) {
+      countdownText.innerText = `Please stay still\n${countdown}`;
+    } else {
+      clearInterval(interval);
+      countdownText.style.display = "none";
 
-            // Take screenshot
-            scene.components.screenshot.capture('perspective')
-              .then(dataUrl => {
-                // Create a download link
-                const link = document.createElement('a');
-                link.href = dataUrl;
-                link.download = 'AR_Snapshot.png';
-                link.click();
-              })
-              .catch(err => console.error("Screenshot failed:", err));
-          }
-        }, 1000);
+      // Take snapshot of the scene
+      scene.snapshot("perspective").then((dataUrl) => {
+        const a = document.createElement("a");
+        a.href = dataUrl;
+        a.download = `ar_snapshot_${Date.now()}.png`;
+        a.click();
       });
+    }
+  }, 1000);
+});
     </script>
 
   </body>
