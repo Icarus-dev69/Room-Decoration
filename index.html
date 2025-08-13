@@ -3,6 +3,9 @@
     <meta charset="utf-8" />
     <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@master/dist/aframe-master.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="
+    https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js
+    "></script>
     <style>
       .model-thumb {
         height: 80px;
@@ -56,13 +59,16 @@
   text-align: center;
 ">Please stay still</div>
     <a-scene
+    id="scene"
       embedded
       arjs="sourceType: webcam; debugUIEnabled: false;"
-      renderer="logarithmicDepthBuffer: true;"
+      renderer="preserveDrawingBuffer: false;"
       vr-mode-ui="enabled: false"
+      preserve-buffer
     >
+    <!-- <a-box position="0 1 -3" color="red"></a-box> -->
       <!-- Camera -->
-      <a-entity id="camera" camera position="0 1.6 0"></a-entity>
+      <a-entity id="camera" class="video" camera position="0 1.6 0"></a-entity>
 
       <a-entity id="raycaster" raycaster="objects: #ground"></a-entity>
 
@@ -89,6 +95,11 @@
     
 
     <script>
+      AFRAME.registerComponent('preserve-buffer', {
+        init: function () {
+          this.el.renderer.preserveDrawingBuffer = true;
+        }
+      });
       const modeSelector = document.getElementById("mode-selector");
       let mode = modeSelector.value; // default
 
@@ -215,32 +226,70 @@
         }
       });
 
-      const takePictureBtn = document.getElementById("take-picture-btn");
+      const takePicBtn = document.getElementById("take-picture-btn");
 const countdownText = document.getElementById("countdown-text");
 
-takePictureBtn.addEventListener("click", () => {
-  let countdown = 3;
+takePicBtn.addEventListener("click", () => {
   countdownText.style.display = "block";
-  countdownText.innerText = `Please stay still\n${countdown}`;
+  countdownText.innerText = "3";
 
+  let counter = 3;
   const interval = setInterval(() => {
-    countdown--;
-    if (countdown > 0) {
-      countdownText.innerText = `Please stay still\n${countdown}`;
+    counter--;
+    if (counter > 0) {
+      countdownText.innerText = counter;
     } else {
-      clearInterval(interval);
-      countdownText.style.display = "none";
-
-      // Take snapshot of the scene
-      scene.snapshot("perspective").then((dataUrl) => {
-        const a = document.createElement("a");
-        a.href = dataUrl;
-        a.download = `ar_snapshot_${Date.now()}.png`;
-        a.click();
-      });
+      countdownText.innerText = "Please stay still";
     }
   }, 1000);
+
+  setTimeout(() => {
+    clearInterval(interval);
+    countdownText.style.display = "none";
+
+    // Take the screenshot
+    takeARScreenshot();
+  }, 4000); // 3 sec countdown + 1 sec for "Please stay still"
 });
+
+
+function takeARScreenshot() {
+  const sceneEl = document.querySelector("#scene");
+  const renderer = sceneEl.renderer;
+  const canvas3D = renderer.domElement;
+  const video = document.querySelector("video"); // AR.js camera feed
+
+  // Make sure renderer has rendered the latest frame
+  renderer.render(sceneEl.object3D, sceneEl.camera);
+
+  // Prepare output canvas
+  const finalCanvas = document.createElement("canvas");
+  finalCanvas.width = canvas3D.width;
+  finalCanvas.height = canvas3D.height;
+  const ctx = finalCanvas.getContext("2d");
+
+  // 1. Draw camera video as background
+  if (video) {
+    ctx.drawImage(video, 0, 0, finalCanvas.width, finalCanvas.height);
+  }
+
+  // 2. Draw the WebGL scene
+  ctx.drawImage(canvas3D, 0, 0, finalCanvas.width, finalCanvas.height);
+
+  // 3. Save as PNG
+  finalCanvas.toBlob((blob) => {
+    if (!blob) {
+      console.error("Failed to capture AR screenshot");
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `ar_screenshot_${Date.now()}.png`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, "image/png");
+}
     </script>
 
   </body>
