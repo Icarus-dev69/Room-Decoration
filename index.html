@@ -35,6 +35,35 @@
   z-index: 10;
   display: none;
 ">Place Object</button>
+<button id="take-picture-btn" style="
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  z-index: 10;
+">Take Picture</button>
+
+<div id="countdown-overlay" style="
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  z-index: 20;
+  display: none;
+  text-shadow: 2px 2px 8px black;
+">
+  Please stay still<br><span id="countdown-number">3</span>
+</div>
     <a-scene
       embedded
       arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
@@ -119,35 +148,40 @@
           newFurniture = document.createElement("a-entity");
           newFurniture.setAttribute("gltf-model", modelUrl);
           newFurniture.setAttribute("scale", "0.1 0.1 0.1");
-          newFurniture.setAttribute("position", "0 0 -4");
+          // newFurniture.setAttribute("position", "0 0 -4");
           newFurniture.setAttribute("auto-bounds", "");
           newFurniture.classList.add("furniture-item");
 
           // scene.appendChild(newFurniture);
           cameraEl.appendChild(newFurniture); // attach to camera so it follows
-          placeBtn.style.display = "block"; // show the "Place" button
+          // placeBtn.style.display = "block"; // show the "Place" button
           setActiveFurniture(newFurniture);
         });
       });
       placeBtn.addEventListener("click", () => {
         if (!newFurniture || !cameraEl.contains(newFurniture)) return;
 
-        // Get current world position of the object
+        // Step 1: Get world position before detaching
         const worldPos = new THREE.Vector3();
         newFurniture.object3D.getWorldPosition(worldPos);
 
-        // Detach from camera
+        console.log(newFurniture.object3D)
+
+        // Step 2: Detach and reattach to scene
         cameraEl.removeChild(newFurniture);
         scene.appendChild(newFurniture);
 
-        // Reposition in world coordinates
+        // Step 3: Set position in world space
         newFurniture.setAttribute("position", {
           x: worldPos.x,
           y: worldPos.y,
           z: worldPos.z
         });
 
-        setActiveFurniture(newFurniture); // continue move/rotate/scale
+        // Step 4: Optional - reset rotation if needed
+        // newFurniture.setAttribute("rotation", "0 0 0");
+
+        setActiveFurniture(newFurniture);
         newFurniture = null;
         placeBtn.style.display = "none";
       });
@@ -237,6 +271,37 @@
 
           activeFurniture.setAttribute("scale", newScale);
         }
+      });
+
+      const takePictureBtn = document.getElementById("take-picture-btn");
+      const countdownOverlay = document.getElementById("countdown-overlay");
+      const countdownNumber = document.getElementById("countdown-number");
+
+      takePictureBtn.addEventListener("click", () => {
+        countdownOverlay.style.display = "block";
+        let counter = 3;
+        countdownNumber.innerText = counter;
+
+        const countdownInterval = setInterval(() => {
+          counter--;
+          if (counter > 0) {
+            countdownNumber.innerText = counter;
+          } else {
+            clearInterval(countdownInterval);
+            countdownOverlay.style.display = "none";
+
+            // Take screenshot
+            scene.components.screenshot.capture('perspective')
+              .then(dataUrl => {
+                // Create a download link
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = 'AR_Snapshot.png';
+                link.click();
+              })
+              .catch(err => console.error("Screenshot failed:", err));
+          }
+        }, 1000);
       });
     </script>
 
