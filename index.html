@@ -152,8 +152,8 @@
           newFurniture.setAttribute("auto-bounds", "");
           newFurniture.classList.add("furniture-item");
 
-          // scene.appendChild(newFurniture);
-          cameraEl.appendChild(newFurniture); // attach to camera so it follows
+          scene.appendChild(newFurniture);
+          // cameraEl.appendChild(newFurniture); // attach to camera so it follows
           // placeBtn.style.display = "block"; // show the "Place" button
           setActiveFurniture(newFurniture);
         });
