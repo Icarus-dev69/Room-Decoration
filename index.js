@@ -243,26 +243,27 @@ function showSelectionBox(el) {
 
   if (!el) return;
 
-  // Get model's bounding box
-  const object3D = el.getObject3D("mesh") || el.getObject3D("gltf-model");
+  const object3D = el.object3D;
   if (!object3D) return;
 
+  // Compute bounding box for entire object3D hierarchy
   const box = new THREE.Box3().setFromObject(object3D);
   const size = new THREE.Vector3();
-  box.getSize(size);
   const center = new THREE.Vector3();
+  box.getSize(size);
   box.getCenter(center);
 
   // Create wireframe box
-  const geometry = new THREE.BoxGeometry(size.x * 1.1, size.y * 1.1, size.z * 1.1);
+  const geometry = new THREE.BoxGeometry(size.x * 1.05, size.y * 1.05, size.z * 1.05);
   const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
   const boxMesh = new THREE.Mesh(geometry, material);
 
-  // Position box relative to model
-  boxMesh.position.copy(center);
+  // Position the box at the center of the model
+  // Since BoxGeometry is centered at origin, offset it to the object's local center
+  boxMesh.position.copy(center.clone().sub(object3D.position));
 
-  // Add box as child of model
-  el.object3D.add(boxMesh);
+  // Add as child of object3D so it moves/rotates/scales with the model
+  object3D.add(boxMesh);
 
   selectionBox = boxMesh;
 }
