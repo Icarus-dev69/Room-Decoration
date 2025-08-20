@@ -46,6 +46,7 @@ img.addEventListener("click", () => {
 // function to set active furniture
 function setActiveFurniture(el) {
   activeFurniture = el;
+  showSelectionBox(el);
 }
 
 // Tap to select placed model
@@ -66,6 +67,7 @@ scene.addEventListener("click", (e) => {
     // select the first intersected model
     const selectedEl = intersects[0].object.el;
     setActiveFurniture(selectedEl);
+    console.log(selectedEl)
   }
 });
 
@@ -229,3 +231,38 @@ checkOrientation();
 // Run on resize or orientation change
 window.addEventListener("resize", checkOrientation);
 window.addEventListener("orientationchange", checkOrientation);
+
+let selectionBox = null;
+
+function showSelectionBox(el) {
+  // Remove previous box
+  if (selectionBox) {
+    selectionBox.parentNode.removeChild(selectionBox);
+    selectionBox = null;
+  }
+
+  if (!el) return;
+
+  // Get model's bounding box
+  const object3D = el.getObject3D("mesh") || el.getObject3D("gltf-model");
+  if (!object3D) return;
+
+  const box = new THREE.Box3().setFromObject(object3D);
+  const size = new THREE.Vector3();
+  box.getSize(size);
+  const center = new THREE.Vector3();
+  box.getCenter(center);
+
+  // Create wireframe box
+  const geometry = new THREE.BoxGeometry(size.x * 1.1, size.y * 1.1, size.z * 1.1);
+  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+  const boxMesh = new THREE.Mesh(geometry, material);
+
+  // Position box relative to model
+  boxMesh.position.copy(center);
+
+  // Add box as child of model
+  el.object3D.add(boxMesh);
+
+  selectionBox = boxMesh;
+}
