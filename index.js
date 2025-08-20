@@ -46,7 +46,7 @@ img.addEventListener("click", () => {
 // function to set active furniture
 function setActiveFurniture(el) {
   activeFurniture = el;
-  showSelectionBox(el);
+  showSelectionIndicator(el);
 }
 
 // Tap to select placed model
@@ -232,38 +232,25 @@ checkOrientation();
 window.addEventListener("resize", checkOrientation);
 window.addEventListener("orientationchange", checkOrientation);
 
-let selectionBox = null;
+let selectionBox
 
-function showSelectionBox(el) {
-  // Remove previous box
+function showSelectionIndicator(el) {
+  // Remove old indicator
   if (selectionBox) {
     selectionBox.parentNode.removeChild(selectionBox);
     selectionBox = null;
   }
-
   if (!el) return;
 
-  const object3D = el.object3D;
-  if (!object3D) return;
+  // Create a ring above the model
+  const ring = document.createElement('a-ring');
+  ring.setAttribute('color', '#00ff00');
+  ring.setAttribute('radius-inner', 0.11);
+  ring.setAttribute('radius-outer', 0.13);
+  ring.setAttribute('rotation', '-90 0 0');
+  ring.setAttribute('position', '0 0.01 0'); // adjust height slightly above base
 
-  // Compute bounding box for entire object3D hierarchy
-  const box = new THREE.Box3().setFromObject(object3D);
-  const size = new THREE.Vector3();
-  const center = new THREE.Vector3();
-  box.getSize(size);
-  box.getCenter(center);
-
-  // Create wireframe box
-  const geometry = new THREE.BoxGeometry(size.x * 1.05, size.y * 1.05, size.z * 1.05);
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
-  const boxMesh = new THREE.Mesh(geometry, material);
-
-  // Position the box at the center of the model
-  // Since BoxGeometry is centered at origin, offset it to the object's local center
-  boxMesh.position.copy(center.clone().sub(object3D.position));
-
-  // Add as child of object3D so it moves/rotates/scales with the model
-  object3D.add(boxMesh);
-
-  selectionBox = boxMesh;
+  // Add as child of the model
+  el.appendChild(ring);
+  selectionBox = ring; // reuse selectionBox variable
 }
