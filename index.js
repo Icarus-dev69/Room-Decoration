@@ -346,7 +346,7 @@ previewImg.classList.add("preview-img");
 previewOverlay.appendChild(previewImg);
 
 // Download button
-const downloadBtn = document.createElement("button");
+const downloadBtn = document.createElement("a");
 downloadBtn.classList.add("preview-download-btn");
 downloadBtn.innerText = "Download";
 previewOverlay.appendChild(downloadBtn);
@@ -382,27 +382,30 @@ takePicBtn.addEventListener("click", () => {
     const dataUrl = takeARScreenshot();
     previewImg.src = dataUrl;
     previewOverlay.style.display = "flex";
+    downloadBtn.download = `ar_screenshot_${Date.now()}.png`; // filename
+    downloadBtn.href = previewImg.src; // point to the preview image
+    previewOverlay.appendChild(downloadBtn);
   }, 4000);
 });
 
 // Download button
-downloadBtn.addEventListener("click", () => {
-  const fileName = `ar_screenshot_${Date.now()}.png`;
+// downloadBtn.addEventListener("click", () => {
+//   const fileName = `ar_screenshot_${Date.now()}.png`;
 
-  if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
-    // iOS device
-    window.open(previewImg.src, "_blank"); // let user long-press to save
-  } else {
-    const link = document.createElement("a");
-    link.href = previewImg.src;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  }
+//   if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+//     // iOS device
+//     window.open(previewImg.src, "_blank"); // let user long-press to save
+//   } else {
+//     const link = document.createElement("a");
+//     link.href = previewImg.src;
+//     link.download = fileName;
+//     document.body.appendChild(link);
+//     link.click();
+//     link.remove();
+//   }
 
-  previewOverlay.style.display = "none";
-});
+//   previewOverlay.style.display = "none";
+// });
 
 // Close button
 closeBtn.addEventListener("click", () => {
