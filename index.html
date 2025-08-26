@@ -16,7 +16,20 @@
       <option value="rotateX">Rotate X</option>
       <option value="rotateY">Rotate Y</option>
     </select>
-    <button id="take-picture-btn">Take Picture</button>
+    <button id="toggle-models-btn" class="toggle-models-btn">
+      Hide <span id="toggle-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18 6h2v12h-2zm-8 5H4v2h6v5l6-6l-6-6z"/></svg></span>
+    </button>
+    <div id="placed-models-list" ></div>
+    <button id="take-picture-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M10 8a2 2 0 1 1-4 0a2 2 0 0 1 4 0M5.276 2.83A1.5 1.5 0 0 1 6.618 2h2.764a1.5 1.5 0 0 1 1.342.83L11.309 4H12a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h.691zM11 8a3 3 0 1 0-6 0a3 3 0 0 0 6 0"/></svg>
+    </button>
+    <div class="category-filter">
+      <select id="category">
+        <option value="kitchen">Kitchen</option>
+        <option value="decorations">Decorations</option>
+        <option value="living_room">Living Room</option>
+      </select>
+    </div>
 
     <div id="countdown-text">Please stay still</div>
 
@@ -41,18 +54,76 @@
         visible="false"
       ></a-plane>
 
-
+      
 
     </a-scene>
-    <div id="model-selector">
-      <img src="assets/thumbnails/test1.png" data-model="assets/models/test.glb" class="model-thumb" />
-      <img src="assets/thumbnails/test2.png" data-model="assets/models/test2.glb" class="model-thumb" />
+    <button id="toggle-thumps-btn" class="toggle-thumps-btn">
+      Hide <span id="toggle-thumps-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18 6h2v12h-2zm-8 12v-5h6v-2h-6V6l-6 6z"/></svg></span> 
+    </button>
+    
+    <div class="model-selector-container">
+
+      <!-- Kitchen -->
+      <div class="category-group" id="kitchen">
+        <img src="assets/thumbnails/kitchen/carpet.png" data-model="assets/models/kitchen/carpet.glb" class="model-thumb">
+        <img src="assets/thumbnails/kitchen/kitchen_chair1.png" data-model="assets/models/kitchen/kitchen_chair1.glb" class="model-thumb">
+        <img src="assets/thumbnails/kitchen/kitchen_chair2.png" data-model="assets/models/kitchen/kitchen_chair2.glb" class="model-thumb">
+        <img src="assets/thumbnails/kitchen/cupboard1.png" data-model="assets/models/kitchen/cupboard1.glb" class="model-thumb">
+        <img src="assets/thumbnails/kitchen/cupboard2.png" data-model="assets/models/kitchen/cupboard2.glb" class="model-thumb">
+        <img src="assets/thumbnails/kitchen/kitchen_stool.png" data-model="assets/models/kitchen/kitchen_stool.glb" class="model-thumb">
+        <img src="assets/thumbnails/kitchen/kitchen_table.png" data-model="assets/models/kitchen/kitchen_table.glb" class="model-thumb">
+      </div>
+
+      <!-- Decorations -->
+      <div class="category-group" id="decorations" style="display:none;">
+        <img src="assets/thumbnails/decorations/book.png" data-model="assets/models/decorations/book.glb" class="model-thumb">
+        <img src="assets/thumbnails/decorations/candles.png" data-model="assets/models/decorations/candles.glb" class="model-thumb">
+        <img src="assets/thumbnails/decorations/clock.png" data-model="assets/models/decorations/clock.glb" class="model-thumb">
+        <img src="assets/thumbnails/decorations/flamingo.png" data-model="assets/models/decorations/flamingo.glb" class="model-thumb">
+        <img src="assets/thumbnails/decorations/lavalamp.png" data-model="assets/models/decorations/lavalamp.glb" class="model-thumb">
+        <img src="assets/thumbnails/decorations/pendulum.png" data-model="assets/models/decorations/pendulum.glb" class="model-thumb">
+        <img src="assets/thumbnails/decorations/vacuum.png" data-model="assets/models/decorations/vacuum.glb" class="model-thumb">
+      </div>
+
+      <!-- Living Room -->
+      <div class="category-group" id="living_room" style="display:none;">
+        <img src="assets/thumbnails/living_room/book_shelve1.png" data-model="assets/models/living_room/book_shelve1.glb" class="model-thumb">
+        <img src="assets/thumbnails/living_room/book_shelve2.png" data-model="assets/models/living_room/book_shelve2.glb" class="model-thumb">
+        <img src="assets/thumbnails/living_room/ceilingfan.png" data-model="assets/models/living_room/ceilingfan.glb" class="model-thumb">
+        <img src="assets/thumbnails/living_room/chair.png" data-model="assets/models/living_room/chair.glb" class="model-thumb">
+        <img src="assets/thumbnails/living_room/chandelier.png" data-model="assets/models/living_room/chandelier.glb" class="model-thumb">
+        <img src="assets/thumbnails/living_room/sofa.png" data-model="assets/models/living_room/sofa.glb" class="model-thumb">
+        <img src="assets/thumbnails/living_room/tvstand.png" data-model="assets/models/living_room/tvstand.glb" class="model-thumb">
+      </div>
       
+      <div id="model-selector">
+        
+        <!-- <img src="assets/thumbnails/kitchen/carpet.png" data-model="assets/models/kitchen/carpet.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/kitchen/kitchen_chair1.png" data-model="assets/models/kitchen/kitchen_chair1.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/kitchen/kitchen_chair2.png" data-model="assets/models/kitchen/kitchen_chair2.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/kitchen/cupboard1.png" data-model="assets/models/kitchen/kitchen_cupboard1.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/kitchen/cupboard2.png" data-model="assets/models/kitchen/kitchen_cupboard2.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/kitchen/kitchen_stool.png" data-model="assets/models/kitchen/kitchen_stool.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/kitchen/kitchen_table.png" data-model="assets/models/kitchen/kitchen_table.glb" class="model-thumb" /> 
+
+        <img src="assets/thumbnails/decorations/book.png" data-model="assets/models/decorations/book.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/decorations/candles.png" data-model="assets/models/decorations/candles.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/decorations/clock.png" data-model="assets/models/decorations/clock.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/decorations/flamingo.png" data-model="assets/models/decorations/flamingo.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/decorations/lavalamp.png" data-model="assets/models/decorations/lavalamp.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/decorations/pendulum.png" data-model="assets/models/decorations/pendulum.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/decorations/vacuum.png" data-model="assets/models/decorations/vacuum.glb" class="model-thumb" /> 
+
+        <img src="assets/thumbnails/living_room/book_shelve1.png" data-model="assets/models/living_room/book_shelve1.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/living_room/book_shelve2.png" data-model="assets/models/living_room/book_shelve2.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/living_room/ceilingfan.png" data-model="assets/models/living_room/ceilingfan.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/living_room/chair.png" data-model="assets/models/living_room/chair.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/living_room/chandelier.png" data-model="assets/models/living_room/chandelier.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/living_room/sofa.png" data-model="assets/models/living_room/sofa.glb" class="model-thumb" /> 
+        <img src="assets/thumbnails/living_room/tvstand.png" data-model="assets/models/living_room/tvstand.glb" class="model-thumb" />  -->
+      </div>
     </div>
     
-    
-    
-
     <script src="index.js"></script>
 
   </body>
