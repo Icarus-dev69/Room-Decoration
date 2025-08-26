@@ -4,7 +4,7 @@ init: function () {
 }
 });
 const modeSelector = document.getElementById("mode-selector");
-let mode = modeSelector.value; // default
+let mode = modeSelector.value; 
 
 const categorySelect = document.getElementById("category");
 const groups = document.querySelectorAll(".category-group");
@@ -23,7 +23,7 @@ console.log("Mode changed to:", mode);
 let activeFurniture = null;
 let scene = document.querySelector("a-scene");
 
-// Touch interaction
+
 let touchStartX = 0;
 let touchStartY = 0;
 let initialPos = null;
@@ -34,7 +34,7 @@ let initialScale = null;
 
 let placedModels = [];
 
-// Model selection
+
 document.querySelectorAll(".model-thumb").forEach((img) => {
 img.addEventListener("click", () => {
     document.querySelectorAll(".model-thumb").forEach((i) => i.classList.remove("selected"));
@@ -50,19 +50,19 @@ img.addEventListener("click", () => {
 
     scene.appendChild(newFurniture);
     setActiveFurniture(newFurniture);
-    // Add to placedModels + refresh UI
+    
       placedModels.push({ el: newFurniture, url: modelUrl });
       updateModelListUI();
 });
 });
 
-// Map to store original materials
+
 let originalMaterials = new Map();
 
-// Slightly brighter highlight (keep subtle)
+
 const highlightTint = new THREE.Color(0x00ff00);
 
-// Set the active model and apply subtle highlight
+
 function setActiveFurniture(el) {
   if (activeFurniture) {
     restoreOriginalMaterial(activeFurniture);
@@ -70,10 +70,10 @@ function setActiveFurniture(el) {
 
   activeFurniture = el;
   applyHighlightMaterial(el);
-  updateModelListUI(); // refresh highlight in UI
+  updateModelListUI(); 
 }
 
-// Apply subtle highlight by cloning materials
+
 function applyHighlightMaterial(el) {
   const mesh = el.getObject3D('mesh') || el.getObject3D('gltf-model');
 
@@ -87,15 +87,15 @@ function applyHighlightMaterial(el) {
       if (!originalMaterials.has(node)) {
         originalMaterials.set(node, node.material);
       }
-      // Clone the original material and slightly tint it
+     
       const newMat = node.material.clone();
-      newMat.color.lerp(highlightTint, 0.9); // 10% tint
+      newMat.color.lerp(highlightTint, 0.9); 
       node.material = newMat;
     }
   });
 }
 
-// Restore the original materials
+
 function restoreOriginalMaterial(el) {
   const mesh = el.getObject3D('mesh') || el.getObject3D('gltf-model');
 
@@ -103,7 +103,7 @@ function restoreOriginalMaterial(el) {
 
   mesh.traverse((node) => {
     if (node.isMesh && originalMaterials.has(node)) {
-      node.material.dispose(); // dispose cloned material
+      node.material.dispose(); 
       node.material = originalMaterials.get(node);
       originalMaterials.delete(node);
     }
@@ -112,12 +112,12 @@ function restoreOriginalMaterial(el) {
 
 
 
-// Tap to select placed model
+
 scene.addEventListener("click", (e) => {
-  const rect = scene.canvas.getBoundingClientRect(); // exact canvas size
+  const rect = scene.canvas.getBoundingClientRect(); 
   const mouse = new THREE.Vector2();
 
-  // Normalize mouse coords correctly
+  
   mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
   mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
@@ -125,7 +125,7 @@ scene.addEventListener("click", (e) => {
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
-  // Collect meshes
+  
   const furnitureMeshes = [];
   document.querySelectorAll(".furniture-item").forEach((el) => {
     const obj = el.object3D;
@@ -218,7 +218,7 @@ function updateModelListUI() {
 
     wrapper.innerText = `Model ${index + 1}`;
     wrapper.addEventListener("click", () => {
-      // Deselect if same model clicked
+      
       if (activeFurniture === model.el) {
         restoreOriginalMaterial(activeFurniture);
         activeFurniture = null;
@@ -226,7 +226,7 @@ function updateModelListUI() {
         if (activeFurniture) restoreOriginalMaterial(activeFurniture);
         setActiveFurniture(model.el);
       }
-      updateModelListUI(); // refresh UI highlight
+      updateModelListUI(); 
     });
 
     const delBtn = document.createElement("button");
@@ -257,7 +257,7 @@ function updateModelListUI() {
 }
 
 
-// Touch start
+
 scene.addEventListener("touchstart", (e) => {
     if (!activeFurniture) return;
 
@@ -277,7 +277,7 @@ scene.addEventListener("touchstart", (e) => {
     }
 });
 
-// Touch move
+
 scene.addEventListener("touchmove", (e) => {
     if (!activeFurniture) return;
     e.preventDefault();
@@ -290,7 +290,7 @@ scene.addEventListener("touchmove", (e) => {
         if (mode === "move") {
         const scaleFactor = 0.01;
         const newX = initialPos.x + dx * scaleFactor;
-        const newY = initialPos.y + dy * -scaleFactor; // negative to match screen direction
+        const newY = initialPos.y + dy * -scaleFactor; 
         activeFurniture.setAttribute("position", { x: newX, y: newY, z: initialPos.z });
     } else if (mode === "rotateY") {
         const newRotX = initialRot.x + dy * 0.5;
@@ -335,41 +335,40 @@ scene.addEventListener("touchmove", (e) => {
 const takePicBtn = document.getElementById("take-picture-btn");
 const countdownText = document.getElementById("countdown-text");
 
-// Create a modal/overlay for preview
-// Create preview overlay
+
 const previewOverlay = document.createElement("div");
 previewOverlay.classList.add("preview-overlay");
 
-// Preview image
+
 const previewImg = document.createElement("img");
 previewImg.classList.add("preview-img");
 previewOverlay.appendChild(previewImg);
 
-// Create buttons container
+
 const buttonsContainer = document.createElement("div");
 buttonsContainer.classList.add("preview-buttons-container");
 
-// Download button
+
 const downloadBtn = document.createElement("button");
 downloadBtn.classList.add("preview-download-btn");
 downloadBtn.innerText = "Download";
 
-// Close button
+
 const closeBtn = document.createElement("button");
 closeBtn.classList.add("preview-close-btn");
 closeBtn.innerText = "Close";
 
-// Append buttons to container
+
 buttonsContainer.appendChild(downloadBtn);
 buttonsContainer.appendChild(closeBtn);
 
-// Append container to preview overlay
+
 previewOverlay.appendChild(buttonsContainer);
 
-// Append overlay to body
+
 document.body.appendChild(previewOverlay);
 
-// Countdown and capture
+
 takePicBtn.addEventListener("click", () => {
   countdownText.style.display = "block";
   countdownText.innerText = "3";
@@ -388,7 +387,7 @@ takePicBtn.addEventListener("click", () => {
     clearInterval(interval);
     countdownText.style.display = "none";
 
-    // Take screenshot
+    
     const dataUrl = takeARScreenshot();
     previewImg.src = dataUrl;
     previewOverlay.style.display = "flex";
@@ -396,23 +395,20 @@ takePicBtn.addEventListener("click", () => {
   }, 4000);
 });
 
-// Download button
+
 downloadBtn.addEventListener("click", () => {
   const fileName = `ar_screenshot_${Date.now()}.png`;
 
-  // if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
-  //   // iOS device
-  //   window.open(previewImg.src, "_blank"); // let user long-press to save
-  // } else {
+  
     const link = document.createElement("a");
     link.href = previewImg.src;
     link.download = fileName;
     document.body.appendChild(link);
     link.click();
     link.remove();
-  // }
+  
 
-  // previewOverlay.style.display = "none";
+  
   document.querySelector("#download-reminder-overlay").style.display = "grid"
 });
 
@@ -420,17 +416,17 @@ document.querySelector("#download-reminder button").addEventListener("click",() 
   document.querySelector("#download-reminder-overlay").style.display = "none"
 })
 
-// Close button
+
 closeBtn.addEventListener("click", () => {
   previewOverlay.style.display = "none";
 });
 
-// Modified takeARScreenshot to return data URL instead of downloading
+
 function takeARScreenshot() {
   const sceneEl = document.querySelector("#scene");
   const renderer = sceneEl.renderer;
   const canvas3D = renderer.domElement;
-  const video = document.querySelector("video"); // AR.js camera feed
+  const video = document.querySelector("video"); 
 
   renderer.render(sceneEl.object3D, sceneEl.camera);
 
@@ -452,53 +448,21 @@ const orientationWarning = document.getElementById("orientation-warning");
 
 function checkOrientation() {
   if (window.innerWidth > window.innerHeight) {
-    // Landscape
+   
     takePicBtn.style.display = "block";
     orientationWarning.style.display = "none";
   } else {
-    // Portrait
+    
     takePicBtn.style.display = "none";
     orientationWarning.style.display = "block";
   }
 }
 
-// Run on load
+
 checkOrientation();
 
-// Run on resize or orientation change
+
 window.addEventListener("resize", checkOrientation);
 window.addEventListener("orientationchange", checkOrientation);
 
 updateModelListUI();
-
-const fullscreenBtn = document.getElementById("fullscreen-btn");
-var elem = document.body;
-function openFullscreen() {
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen();
-  } else if (elem.webkitRequestFullscreen) { /* Safari */
-    elem.webkitRequestFullscreen();
-  } else if (elem.msRequestFullscreen) { /* IE11 */
-    elem.msRequestFullscreen();
-  }
-}
-
-function closeFullscreen() {
-  if (document.exitFullscreen) {
-    document.exitFullscreen();
-  } else if (document.webkitExitFullscreen) { /* Safari */
-    document.webkitExitFullscreen();
-  } else if (document.msExitFullscreen) { /* IE11 */
-    document.msExitFullscreen();
-  }
-}
-
-fullscreenBtn.addEventListener("click", () => {
-  // if (!document.fullscreenElement) {
-    openFullscreen()
-  //   fullscreenBtn.textContent = "⛶ Exit Fullscreen";
-  // } else {
-  //   closeFullscreen()
-  //   fullscreenBtn.textContent = "⛶ Fullscreen";
-  // }
-});
