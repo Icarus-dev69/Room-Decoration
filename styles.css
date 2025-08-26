@@ -239,3 +239,10 @@ body{
   border-radius: 8px;
   border: 2px solid #0077ff;
 }
+
+#fullscreen-btn{
+  position: absolute;
+  right: 5px;
+  bottom: 10px;
+  z-index: 9999;
+}
