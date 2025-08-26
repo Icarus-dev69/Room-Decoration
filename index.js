@@ -446,15 +446,35 @@ window.addEventListener("orientationchange", checkOrientation);
 updateModelListUI();
 
 const fullscreenBtn = document.getElementById("fullscreen-btn");
+var elem = document.documentElement;
+
+function openFullscreen() {
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) { /* Safari */
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) { /* IE11 */
+    elem.msRequestFullscreen();
+  }
+}
+
+/* Close fullscreen */
+function closeFullscreen() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.webkitExitFullscreen) { /* Safari */
+    document.webkitExitFullscreen();
+  } else if (document.msExitFullscreen) { /* IE11 */
+    document.msExitFullscreen();
+  }
+}
 
 fullscreenBtn.addEventListener("click", () => {
   if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(err => {
-      alert(`Error attempting to enable full-screen mode: ${err.message}`);
-    });
+    openFullscreen()
     fullscreenBtn.textContent = "⛶ Exit Fullscreen";
   } else {
-    document.exitFullscreen();
+    closeFullscreen()
     fullscreenBtn.textContent = "⛶ Fullscreen";
   }
 });
