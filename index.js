@@ -387,10 +387,20 @@ takePicBtn.addEventListener("click", () => {
 
 // Download button
 downloadBtn.addEventListener("click", () => {
-  const link = document.createElement("a");
-  link.href = previewImg.src;
-  link.download = `ar_screenshot_${Date.now()}.png`;
-  link.click();
+  const fileName = `ar_screenshot_${Date.now()}.png`;
+
+  if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+    // iOS device
+    window.open(previewImg.src, "_blank"); // let user long-press to save
+  } else {
+    const link = document.createElement("a");
+    link.href = previewImg.src;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }
+
   previewOverlay.style.display = "none";
 });
 
@@ -446,8 +456,7 @@ window.addEventListener("orientationchange", checkOrientation);
 updateModelListUI();
 
 const fullscreenBtn = document.getElementById("fullscreen-btn");
-var elem = document.documentElement;
-
+var elem = document.body;
 function openFullscreen() {
   if (elem.requestFullscreen) {
     elem.requestFullscreen();
@@ -458,7 +467,6 @@ function openFullscreen() {
   }
 }
 
-/* Close fullscreen */
 function closeFullscreen() {
   if (document.exitFullscreen) {
     document.exitFullscreen();
@@ -470,11 +478,11 @@ function closeFullscreen() {
 }
 
 fullscreenBtn.addEventListener("click", () => {
-  if (!document.fullscreenElement) {
+  // if (!document.fullscreenElement) {
     openFullscreen()
-    fullscreenBtn.textContent = "⛶ Exit Fullscreen";
-  } else {
-    closeFullscreen()
-    fullscreenBtn.textContent = "⛶ Fullscreen";
-  }
+  //   fullscreenBtn.textContent = "⛶ Exit Fullscreen";
+  // } else {
+  //   closeFullscreen()
+  //   fullscreenBtn.textContent = "⛶ Fullscreen";
+  // }
 });
