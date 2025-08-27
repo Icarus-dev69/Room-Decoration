@@ -44,7 +44,7 @@ img.addEventListener("click", () => {
     const newFurniture = document.createElement("a-entity");
     newFurniture.setAttribute("gltf-model", modelUrl);
     newFurniture.setAttribute("scale", "1 1 1");
-    newFurniture.setAttribute("position", "0 0 -6");
+    newFurniture.setAttribute("position", "0 1 -6");
     newFurniture.setAttribute("auto-bounds", "");
     newFurniture.classList.add("furniture-item");
 
