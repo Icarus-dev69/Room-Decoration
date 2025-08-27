@@ -46,7 +46,6 @@ img.addEventListener("click", () => {
     newFurniture.setAttribute("scale", "1 1 1");
     newFurniture.setAttribute("position", "0 2 -6");
     newFurniture.setAttribute("auto-bounds", "");
-    
     newFurniture.classList.add("furniture-item");
 
     scene.appendChild(newFurniture);
