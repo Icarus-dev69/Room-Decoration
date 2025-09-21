@@ -46,7 +46,6 @@ img.addEventListener("click", () => {
     newFurniture.setAttribute("scale", "1 1 1");
     newFurniture.setAttribute("position", "0 2 -6");
     newFurniture.setAttribute("auto-bounds", "");
-    
     newFurniture.classList.add("furniture-item");
 
     scene.appendChild(newFurniture);
@@ -169,7 +168,7 @@ toggleModelsBtn.addEventListener("click", () => {
 
 const toggleThumpsBtn = document.getElementById("toggle-thumps-btn");
 const toggleThumpsArrow = document.getElementById("toggle-thumps-arrow");
-const ThumpsContainer = document.getElementById("model-selector");
+const ThumpsContainer = document.querySelector(".model-selector-container");
 
 toggleThumpsBtn.addEventListener("click", () => {
   if (ThumpsContainer.style.display === "none") {
