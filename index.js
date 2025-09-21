@@ -168,7 +168,7 @@ toggleModelsBtn.addEventListener("click", () => {
 
 const toggleThumpsBtn = document.getElementById("toggle-thumps-btn");
 const toggleThumpsArrow = document.getElementById("toggle-thumps-arrow");
-const ThumpsContainer = document.getElementById("model-selector");
+const ThumpsContainer = document.querySelector(".model-selector-container");
 
 toggleThumpsBtn.addEventListener("click", () => {
   if (ThumpsContainer.style.display === "none") {
