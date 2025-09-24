@@ -23,12 +23,12 @@ body{
   top: 10px; 
   left: 5px; 
   z-index: 9999; 
-  font-size:16px; 
+  font-size:14px; 
   padding:4px;
   background-color: transparent;
   border-radius: 8px;
   border: 2px solid #0077ff;
-  width: 110px;
+  width: 90px;
 }
 
 .model-selector-container{
@@ -92,6 +92,10 @@ body{
   z-index: 9999;
   text-align: center;
   display: none; 
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  width: 75%;
 }
 
 .toggle-models-btn {
@@ -271,12 +275,12 @@ body{
 }
 
 .category-filter select{
-  font-size: 16px;
+  font-size: 14px;
   padding: 4px;
   background-color: transparent;
   border-radius: 8px;
   border: 2px solid #0077ff;
-  width: 110px;
+  width: 90px;
 }
 
 #fullscreen-btn{
