@@ -3,6 +3,22 @@ init: function () {
     this.el.renderer.preserveDrawingBuffer = true;
 }
 });
+const stats = new Stats();
+document.body.appendChild(stats.dom);
+
+// Move it to top-right corner
+stats.dom.style.position = 'fixed';
+stats.dom.style.bottom = '10px';
+stats.dom.style.top = 'auto';
+stats.dom.style.left = '10px';
+stats.dom.style.right = 'auto'; // reset left to avoid conflict
+stats.dom.style.zIndex = '9999'; // make sure it's above everything
+
+AFRAME.registerComponent('fps-check', {
+  tick: function () {
+    stats.update();
+  }
+});
 const modeSelector = document.getElementById("mode-selector");
 let mode = modeSelector.value; 
 

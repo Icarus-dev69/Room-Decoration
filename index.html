@@ -6,6 +6,7 @@
     <script src="
     https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js
     "></script>
+    <script src="https://cdn.jsdelivr.net/npm/stats-js@1.0.1/build/stats.min.js"></script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
 
@@ -46,6 +47,7 @@
     <div id="orientation-warning">Please rotate your device to landscape to take a picture</div>
     <a-scene
     id="scene"
+    fps-check
       embedded
       arjs="sourceType: webcam; debugUIEnabled: false;"
       renderer="preserveDrawingBuffer: false;"
